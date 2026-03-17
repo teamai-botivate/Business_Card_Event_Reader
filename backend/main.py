@@ -60,15 +60,21 @@ async def perform_ocr(request: OCRRequest):
         logger.error(f"Global Endpoint Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- FRONTEND ROUTES ---
+# --- FRONTEND ASSETS ---
+from fastapi.staticfiles import StaticFiles
+# Mount static files for CSS, JS, etc.
+app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="assets")
+
 @app.get("/")
 async def read_index():
     return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
+@app.get("/leads.html")
 @app.get("/leads")
 async def read_leads():
     return FileResponse(os.path.join(FRONTEND_DIR, "leads.html"))
 
+# Map individual files for root level access if needed by the index.html
 @app.get("/style.css")
 async def read_style():
     return FileResponse(os.path.join(FRONTEND_DIR, "style.css"))

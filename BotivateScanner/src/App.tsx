@@ -156,30 +156,38 @@ END:VCARD`.trim()
     if (!contactInfo) return;
     const vCard = generateVCard(contactInfo);
     
-    // Modern Mobile Direct Sharing (Skip manual 'open file' step)
+    // 1. STRONGEST METHOD: Native Share API (Bypasses download folder entirely)
+    // Forces the OS to show 'Add to Contacts' or 'Open with...' immédiatement
     try {
-      if (typeof navigator.share !== 'undefined' && typeof navigator.canShare !== 'undefined') {
+      if (typeof navigator.share !== 'undefined') {
         const file = new File([vCard], `${contactInfo.firstName}.vcf`, { type: 'text/vcard' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: `Save ${contactInfo.firstName}'s Contact`,
-            text: 'Professional contact information.'
-          });
-          return; // Success! OS handles the rest.
-        }
+        await navigator.share({
+          files: [file],
+          title: `Save ${contactInfo.firstName}'s Contact`,
+          text: 'Member contact details'
+        });
+        return; // Success! No manual open needed.
       }
-    } catch (e) { console.warn("Share failed, falling back to download..."); }
+    } catch (e) { console.warn("Share failed, trying direct navigation..."); }
 
-    // PC or Older Browser: Reliable fallback logic
-    const blob = new Blob([vCard], { type: "text/vcard;charset=utf-8" });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `${contactInfo.firstName}.vcf`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // 2. AGGRESSIVE METHOD: Direct Data URI Navigation
+    // Often triggers 'Action selection' in Chrome/Safari instead of a silent download
+    try {
+      const dataUri = "data:text/vcard;charset=utf-8," + encodeURIComponent(vCard);
+      window.location.assign(dataUri);
+    } catch (e) { console.warn("Data URI navigation failed."); }
+
+    // 3. FALLBACK: Safety Download (For desktops/legacy browsers)
+    setTimeout(() => {
+      const blob = new Blob([vCard], { type: "text/vcard;charset=utf-8" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${contactInfo.firstName}.vcf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }, 2000);
   }
 
   const generateQRCodeDataURL = async (text: string, options = {}): Promise<string> => {

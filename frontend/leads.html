@@ -150,8 +150,39 @@
         </div>
     </div>
 
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full p-8 transform transition-all border border-white/20">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h2M4 8h16"></path></svg>
+                </div>
+                <h3 class="text-2xl font-black text-slate-800 tracking-tight" id="qrModalTitle">Event QR Code</h3>
+                <p id="qrModalEventId" class="text-blue-600 font-bold uppercase tracking-widest text-[10px] bg-blue-50 px-3 py-1 rounded-full inline-block mt-2">ID: EVT-001</p>
+                <p class="text-slate-500 text-sm font-medium mt-3">Scan this to view profile and save contact</p>
+            </div>
+            
+            <div id="qrcodeContainer" class="flex justify-center p-6 bg-slate-50 rounded-3xl border border-slate-100 shadow-inner mb-6">
+                <!-- QR Code will be injected here -->
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="downloadQR()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    DOWNLOAD QR
+                </button>
+                <button onclick="hideQRModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-4 rounded-2xl hover:bg-slate-200 transition-all">
+                    CLOSE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCPeTYr3DyfmQaEJCQ_A7KnKJ9gZtz4zO-chHkLyvxMFsCd2JRWikUB8LxpFwwbuczxw/exec';
+        let qrInstance = null;
+        let currentEventId = '';
         
         // --- Hover Logic ---
         const previewEl = document.getElementById('globalHoverPreview');
@@ -344,8 +375,9 @@
                         
                         if (keys[0] === 'Action') {
                             const eventId = getValue(row, ['Event ID']);
+                            const eventName = getValue(row, ['Event Name']);
                             if (eventId && eventId.trim() !== '' && eventId !== '-') {
-                                td.innerHTML = `<a href="/scanner/?id=${eventId}" target="_blank" class="px-3 py-1 bg-blue-600 text-white text-[10px] font-bold rounded-lg hover:bg-blue-700 transition-colors">Scanner</a>`;
+                                td.innerHTML = `<button onclick="showQRModal('${eventId}', '${eventName.replace(/'/g, "\\'")}')" class="px-3 py-1 bg-blue-600 text-white text-[10px] font-bold rounded-lg hover:bg-blue-700 transition-colors">Scanner</button>`;
                             } else {
                                 td.innerHTML = ''; // Hide button if no Event ID
                             }
@@ -499,6 +531,47 @@
                     </div>
                 </td></tr>`;
             }
+        }
+
+        function showQRModal(eventId, eventName) {
+            currentEventId = eventId;
+            document.getElementById('qrModalTitle').innerText = eventName || 'Event QR Code';
+            document.getElementById('qrModalEventId').innerText = `ID: ${eventId}`;
+            const modal = document.getElementById('qrModal');
+            const container = document.getElementById('qrcodeContainer');
+            
+            container.innerHTML = ''; // Clear previous
+            
+            const scanUrl = `${window.location.origin}/scanner/?id=${eventId}`;
+            
+            qrInstance = new QRCode(container, {
+                text: scanUrl,
+                width: 200,
+                height: 200,
+                colorDark : "#0f172a",
+                colorLight : "#f8fafc",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function hideQRModal() {
+            const modal = document.getElementById('qrModal');
+            modal.classList.add('hidden');
+        }
+
+        function downloadQR() {
+            const qrImg = document.querySelector('#qrcodeContainer img');
+            if (!qrImg) return;
+            
+            const link = document.createElement('a');
+            link.href = qrImg.src;
+            link.download = `QR_${currentEventId}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Load on start

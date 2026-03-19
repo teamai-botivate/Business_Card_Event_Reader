@@ -136,18 +136,19 @@ async def read_worker():
     return FileResponse(os.path.join(FRONTEND_DIR, "worker.js"))
 
 @app.get("/vcard-direct")
-async def vcard_direct(name: str, org: str, phone: str, email: str, title: str = "", addr: str = "", web: str = ""):
+async def vcard_direct(name: str, org: str, phone: str, email: str, title: str = "", addr: str = "", web: str = "", first: str = "", last: str = ""):
     vcard_raw = f"""BEGIN:VCARD
 VERSION:3.0
 FN:{name}
+N:{last};{first};;;
 ORG:{org}
 TITLE:{title}
-TEL;TYPE=CELL,VOICE:+91{phone}
+TEL;TYPE=WORK,VOICE:+91{phone}
 EMAIL;TYPE=PREF,INTERNET:{email}
 ADR;TYPE=WORK:;;{addr};;;;
 URL:{web}
 END:VCARD"""
-    safe_name = name.replace(" ", "_")
+    safe_name = name.replace(" ", "_").replace("(", "").replace(")", "")
     return Response(
         content=vcard_raw,
         media_type="text/vcard",

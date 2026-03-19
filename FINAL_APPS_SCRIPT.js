@@ -357,8 +357,6 @@ function saveLeadData(leadData) {
     sheet = ss.insertSheet(SHEET_NAME);
     sheet.appendRow([
       "Timestamp", 
-      "Event/Card ID", 
-      "Owner/Company", 
       "Visitor Name", 
       "Visitor Mobile", 
       "Visitor Email", 
@@ -366,14 +364,12 @@ function saveLeadData(leadData) {
       "Visitor Designation", 
       "Message"
     ]);
-    sheet.getRange(1, 1, 1, 9).setFontWeight("bold").setBackground("#f3f3f3");
+    sheet.getRange(1, 1, 1, 7).setFontWeight("bold").setBackground("#f3f3f3");
   }
   
   const timestamp = new Date();
   sheet.appendRow([
     timestamp,
-    leadData.eventId || "N/A",
-    leadData.ownerName || leadData.organization || "N/A",
     leadData.fullName,
     leadData.mobile,
     leadData.email,

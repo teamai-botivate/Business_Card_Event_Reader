@@ -170,6 +170,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(true)
   const [eventId, setEventId] = useState<string | null>(null)
+  const [eventName, setEventName] = useState<string>("")
 
   useEffect(() => {
     setScreenSize({ width: window.innerWidth })
@@ -245,6 +246,8 @@ function App() {
         const rawLogo = logoKey ? d[logoKey] : "images/Botivate.png";
         const processedLogo = convertDriveLink(rawLogo);
         const finalLogo = wrapWithProxy(processedLogo);
+        const eName = d["Event Name"] || "Unknown Event";
+        setEventName(eName);
 
         setContactInfo({
           firstName: d["Member Name"] ? d["Member Name"].split(' ')[0] : (d["Event Name"] || "Event"),
@@ -280,6 +283,7 @@ function App() {
       const leadData = {
         ...data,
         eventId: eventId,
+        eventName: eventName,
         ownerName: contactInfo ? `${contactInfo.firstName} ${contactInfo.lastName}` : "Unknown",
         ownerOrg: contactInfo?.organization || "N/A"
       };

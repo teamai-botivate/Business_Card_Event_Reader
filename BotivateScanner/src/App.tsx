@@ -1,6 +1,9 @@
 import { QRCodeSVG } from "qrcode.react"
 import { useState, useEffect } from "react"
-import { Phone, Mail, MapPin, Globe, Download, QrCode } from "lucide-react"
+import { 
+  Phone, Mail, MapPin, Globe, Download, QrCode, Smartphone, Share2, 
+  Linkedin, Instagram, Facebook, Twitter, ExternalLink, User
+} from "lucide-react"
 import jsPDF from "jspdf"
 // @ts-ignore - QRCode library doesn't have TypeScript definitions
 import QRCodeLib from "qrcode"
@@ -15,8 +18,22 @@ interface ContactInfo {
   phone: string
   email: string
   address: string
+  city: string
+  state: string
+  pincode: string
+  country: string
   website: string
   logo: string
+  tagline?: string
+  industry?: string
+  whatsapp?: string
+  linkedin?: string
+  instagram?: string
+  facebook?: string
+  twitter?: string
+  services?: string
+  about?: string
+  mapsLink?: string
 }
 
 function App() {
@@ -26,21 +43,15 @@ function App() {
 
   useEffect(() => {
     setScreenSize({ width: window.innerWidth })
-
-    const handleResize = () => {
-      setScreenSize({ width: window.innerWidth })
-    }
-
+    const handleResize = () => setScreenSize({ width: window.innerWidth })
     window.addEventListener('resize', handleResize)
 
-    // Fetch dynamic data if ID is present
     const params = new URLSearchParams(window.location.search);
     const eventId = params.get('id');
 
     if (eventId) {
       fetchEventData(eventId);
     } else {
-      // Default fallback if no ID
       setContactInfo({
         firstName: "Satyendra",
         lastName: "Tandan",
@@ -48,41 +59,37 @@ function App() {
         organization: "Botivate Services LLP",
         phone: "8871527519",
         email: "satyendra@botivate.in",
-        address: "Office No - 224, Shriram Business Park, Amaseoni, Vidhan Sabha Rd, Raipur, Chhattisgarh 493111",
+        address: "Office No - 224, Shriram Business Park, Amaseoni, Vidhan Sabha Rd",
+        city: "Raipur",
+        state: "Chhattisgarh",
+        pincode: "493111",
+        country: "India",
         website: "www.botivate.in",
         logo: "images/Botivate.png",
+        industry: "Technology",
+        tagline: "Powering Businesses On Autopilot"
       });
       setLoading(false);
     }
-
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   const convertDriveLink = (url: string) => {
     if (!url) return url;
     let cleanUrl = String(url).trim();
-    
-    // Extract URL from =HYPERLINK("url", "label")
     if (cleanUrl.startsWith('=HYPERLINK')) {
       const match = cleanUrl.match(/"(.*?)"/);
       if (match) cleanUrl = match[1];
     }
-    
     if (cleanUrl.includes('drive.google.com')) {
-      // Robust Drive ID match
       const match = cleanUrl.match(/\/d\/(.+?)(\/|\?|$)/) || cleanUrl.match(/id=(.+?)(&|$)/);
-      if (match && match[1]) {
-        // Use direct link
-        return `https://drive.google.com/uc?id=${match[1]}`;
-      }
+      if (match && match[1]) return `https://drive.google.com/uc?id=${match[1]}`;
     }
     return cleanUrl;
   };
 
   const wrapWithProxy = (url: string) => {
-    if (!url || url.includes('localhost') || url.startsWith('images/') || !url.startsWith('http')) {
-      return url;
-    }
+    if (!url || url.includes('localhost') || url.startsWith('images/') || !url.startsWith('http')) return url;
     return `/proxy-image?url=${encodeURIComponent(url)}`;
   };
 
@@ -94,51 +101,42 @@ function App() {
         headers: { "Content-Type": "text/plain;charset=utf-8" }
       });
       const res = await response.json();
-      console.log("Fetch result:", res);
-      
-      // The Apps Script now returns { success: true, data: { ... } }
       if (res.success && res.data) {
         const d = res.data;
-        
-        // Find logo key case-insensitively
         const allKeys = Object.keys(d);
-        const logoKey = allKeys.find(k => {
-          const lk = k.toLowerCase();
-          return lk.includes('logo') || lk.includes('photo') || lk.includes('image');
-        });
+        const logoKey = allKeys.find(k => k.toLowerCase().includes('logo') || k.toLowerCase().includes('photo') || k.toLowerCase().includes('image'));
         const rawLogo = logoKey ? d[logoKey] : "images/Botivate.png";
-        
-        console.log("Raw logo:", rawLogo);
         const processedLogo = convertDriveLink(rawLogo);
         const finalLogo = wrapWithProxy(processedLogo);
-        console.log("Final logo (proxied):", finalLogo);
 
         setContactInfo({
           firstName: d["Member Name"] ? d["Member Name"].split(' ')[0] : (d["Event Name"] || "Event"),
           lastName: d["Member Name"] ? d["Member Name"].split(' ').slice(1).join(' ') : "",
           title: d["Designation"] || "Event Organizer",
           organization: d["Company Name"] || "Botivate Services LLP",
-          phone: d["Member Phone"] || d["Official Phone"] || "",
-          email: d["Official Email"] || "",
-          address: `${d["Address Line"] || ""}, ${d["City"] || ""}, ${d["State"] || ""} ${d["Pincode"] || ""}`,
-          website: d["Website URL"] || "www.botivate.in",
-          logo: finalLogo,
+          phone: d["Member Phone"] || d["Official Phone"] || d["Mobile Number"] || "8871527519",
+          email: d["Official Email"] || "satyendra@botivate.in",
+          address: d["Address Line"] || "",
+          city: d["City"] || "Raipur",
+          state: d["State"] || "Chhattisgarh",
+          pincode: d["Pincode"] || "493111",
+          country: d["Country"] || "India",
+          website: d["Website URL"] || d["Website"] || "www.botivate.in",
+          logo: finalLogo || "images/Botivate.png",
+          tagline: d["Tagline"] || "",
+          industry: d["Industry"] || "Technology",
+          whatsapp: d["WhatsApp Number"] || "",
+          linkedin: d["LinkedIn"] || "",
+          instagram: d["Instagram"] || "",
+          facebook: d["Facebook"] || "",
+          twitter: d["Twitter/X"] || d["Twitter"] || "",
+          services: d["Services Offered"] || "",
+          about: d["About Company"] || "",
+          mapsLink: d["Google Maps Link"] || ""
         });
-      } else {
-        console.error("Event not found in response:", res);
       }
-    } catch (err) {
-      console.error("Failed to fetch event:", err);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error(err); } finally { setLoading(false); }
   };
-
-  const getQRSize = (baseSize: number) => {
-    if (screenSize.width < 640) return baseSize - 50
-    if (screenSize.width < 1024) return baseSize - 20
-    return baseSize
-  }
 
   const generateVCard = (contact: ContactInfo): string => {
     return `BEGIN:VCARD
@@ -147,383 +145,261 @@ N:${contact.lastName};${contact.firstName};;;
 FN:${contact.firstName} ${contact.lastName}
 TITLE:${contact.title}
 ORG:${contact.organization}
-TEL:+91${contact.phone}
-EMAIL:${contact.email}
-ADR:;;${contact.address};;;;
+TEL;TYPE=CELL,VOICE:+91${contact.phone}
+EMAIL;TYPE=PREF,INTERNET:${contact.email}
+ADR;TYPE=WORK:;;${contact.address};${contact.city};${contact.state};${contact.pincode};${contact.country}
 URL:${contact.website}
 END:VCARD`.trim()
   }
 
+  const downloadVCard = () => {
+    if (!contactInfo) return;
+    const vCard = generateVCard(contactInfo)
+    const blob = new Blob([vCard], { type: "text/vcard;charset=utf-8" })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.setAttribute("download", `${contactInfo.firstName}.vcf`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   const generateQRCodeDataURL = async (text: string, options = {}): Promise<string> => {
-    try {
-      const qrOptions = {
-        errorCorrectionLevel: "H",
-        type: "image/png" as const,
-        quality: 0.95,
-        margin: 1,
-        color: {
-          dark: "#000000",
-          light: "#FFFFFF",
-        },
-        width: 500,
-        ...options,
-      } as const;
-
-      const dataURL = await QRCodeLib.toDataURL(text, qrOptions) as string;
-      return dataURL
-    } catch (error) {
-      console.error("QR Code generation failed:", error)
-      throw error
-    }
+    return await QRCodeLib.toDataURL(text, { errorCorrectionLevel: "H", type: "image/png", margin: 1, width: 1000, ...options })
   }
 
-  const loadImageAsDataURL = (imgId: string): Promise<string> => {
+  const loadImageAsDataURL = (url: string): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const img = document.getElementById(imgId) as HTMLImageElement
-      if (!img) {
-        console.error(`Image with id ${imgId} not found`)
-        reject(new Error(`Image with id ${imgId} not found`))
-        return
-      }
-
-      if (img.complete && img.naturalWidth > 0) {
-        const canvas = document.createElement('canvas')
-        canvas.width = img.naturalWidth || img.width
-        canvas.height = img.naturalHeight || img.height
-        const ctx = canvas.getContext('2d')
-
-        if (!ctx) {
-          reject(new Error('Failed to get canvas context'))
-          return
-        }
-
-        ctx.drawImage(img, 0, 0)
-
-        try {
-          const dataURL = canvas.toDataURL('image/png')
-          resolve(dataURL)
-        } catch (error) {
-          reject(error)
-        }
-      } else {
-        img.onload = () => {
-          const canvas = document.createElement('canvas')
-          canvas.width = img.naturalWidth || img.width
-          canvas.height = img.naturalHeight || img.height
-          const ctx = canvas.getContext('2d')
-
-          if (!ctx) {
-            reject(new Error('Failed to get canvas context'))
-            return
-          }
-
-          ctx.drawImage(img, 0, 0)
-
-          try {
-            const dataURL = canvas.toDataURL('image/png')
-            resolve(dataURL)
-          } catch (error) {
-            reject(error)
-          }
-        }
-
-        img.onerror = () => {
-          reject(new Error(`Failed to load image: ${imgId}`))
-        }
-      }
-    })
-  }
-
-  const createCircularImage = async (imgDataURL: string, size: number): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image()
+      const img = new Image();
+      img.crossOrigin = "anonymous";
       img.onload = () => {
         const canvas = document.createElement('canvas')
-        canvas.width = size
-        canvas.height = size
-        const ctx = canvas.getContext('2d')
-
-        if (!ctx) {
-          reject(new Error('Failed to get canvas context'))
-          return
-        }
-
-        ctx.fillStyle = '#FFFFFF'
-        ctx.beginPath()
-        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2)
-        ctx.fill()
-
-        ctx.save()
-
-        const circleRadius = (size / 2) * 0.9
-        ctx.beginPath()
-        ctx.arc(size / 2, size / 2, circleRadius, 0, Math.PI * 2)
-        ctx.closePath()
-        ctx.clip()
-
-        const imgAspect = img.width / img.height
-        let drawWidth, drawHeight, drawX, drawY
-
-        if (imgAspect > 1) {
-          drawHeight = circleRadius * 2 * 0.85
-          drawWidth = drawHeight * imgAspect
-        } else {
-          drawWidth = circleRadius * 2 * 0.85
-          drawHeight = drawWidth / imgAspect
-        }
-
-        drawX = (size - drawWidth) / 2
-        drawY = (size - drawHeight) / 2
-
-        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
-
-        ctx.restore()
-
-        ctx.strokeStyle = '#E5E7EB'
-        ctx.lineWidth = 4
-        ctx.beginPath()
-        ctx.arc(size / 2, size / 2, (size / 2) - 2, 0, Math.PI * 2)
-        ctx.stroke()
-
-        try {
-          const circularDataURL = canvas.toDataURL('image/png')
-          resolve(circularDataURL)
-        } catch (error) {
-          reject(error)
-        }
+        canvas.width = img.naturalWidth; canvas.height = img.naturalHeight
+        const ctx = canvas.getContext('2d'); if (!ctx) return reject('No ctx');
+        ctx.drawImage(img, 0, 0); resolve(canvas.toDataURL('image/png'))
       }
-      img.onerror = () => reject(new Error('Failed to load image for circular conversion'))
-      img.src = imgDataURL
+      img.onerror = () => reject('Load fail'); img.src = url;
     })
   }
 
   const downloadContactPDF = async () => {
     if (!contactInfo) return;
     try {
-      await new Promise(resolve => setTimeout(resolve, 100))
-      const pdf = new jsPDF("p", "mm", "a4")
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      pdf.setFillColor(255, 255, 255)
-      pdf.rect(0, 0, pageWidth, pageHeight, "F")
+      // New: Make PDF dimension fit the card exactly (Full Size)
+      const cw = 200; const ch = 110
+      const pdf = new jsPDF("l", "mm", [cw + 20, ch + 20])
+      const pw = cw + 20; const ph = ch + 20
+      const cx = 10; const cy = 10
 
-      try {
-        const vCardData = generateVCard(contactInfo)
-
-        const contactQRDataURL = await generateQRCodeDataURL(vCardData, {
-          color: {
-            dark: "#000000",
-            light: "#FFFFFF",
-          },
-          width: 600,
-        })
-
-        const qrSize = 100
-        const qrX = (pageWidth - qrSize) / 2
-        const qrY = 80
-
-        pdf.addImage(contactQRDataURL, "PNG", qrX, qrY, qrSize, qrSize)
-
-        try {
-          const logoDataURL = await loadImageAsDataURL('botivate-logo')
-          const circularLogoDataURL = await createCircularImage(logoDataURL, 400)
-
-          const logoSize = 40
-          const logoX = qrX + (qrSize - logoSize) / 2
-          const logoY = qrY + (qrSize - logoSize) / 2
-
-          pdf.addImage(circularLogoDataURL, "PNG", logoX, logoY, logoSize, logoSize)
-        } catch (error) {
-          console.error("Logo error:", error)
-        }
-
-        const textY = qrY + qrSize + 20
-        pdf.setTextColor(0, 0, 0)
-        pdf.setFontSize(24)
-        pdf.setFont("helvetica", "bold")
-        pdf.text("Save Us", pageWidth / 2, textY, { align: "center" })
-
-        const textWidth = pdf.getTextWidth("Save Us")
-        const underlineY = textY + 2
-        const underlineStartX = (pageWidth - textWidth) / 2
-        const underlineEndX = (pageWidth + textWidth) / 2
-        pdf.setLineWidth(0.8)
-        pdf.line(underlineStartX, underlineY, underlineEndX, underlineY)
-
-      } catch (error) {
-        console.error("Contact QR code generation failed:", error)
+      // 1. ALL-AROUND 3D Shadow (Glow Effect)
+      pdf.setDrawColor(210, 210, 210); pdf.setLineWidth(0.3)
+      for(let i=1; i<=6; i++) {
+          // Centered shadow layers
+          pdf.roundedRect(cx - i/3, cy - i/3, cw + (i*2/3), ch + (i*2/3), 6, 6, "S")
       }
 
-      pdf.save(`${contactInfo.firstName}-Contact-QR.pdf`)
-    } catch (error) {
-      console.error("Error generating Contact PDF:", error)
-      alert("There was an error generating the Contact PDF. Please try again.")
-    }
+      // 2. Card Base (Pristine White)
+      pdf.setDrawColor(240, 240, 240); pdf.setFillColor(255, 255, 255); pdf.setLineWidth(0.1)
+      pdf.roundedRect(cx, cy, cw, ch, 6, 6, "FD")
+
+      const splitX = cx + cw * 0.46
+      // PREMIUM S-CURVE (Image 2 Match)
+      pdf.setFillColor(15, 23, 42)
+      // @ts-ignore
+      pdf.moveTo(splitX, cy)
+      // @ts-ignore
+      pdf.curveTo(splitX - 18, cy + 20, splitX + 10, cy + ch - 20, splitX - 18, cy + ch)
+      // @ts-ignore
+      pdf.lineTo(cx + cw - 6, cy + ch); pdf.curveTo(cx + cw, cy + ch, cx + cw, cy + ch, cx + cw, cy + ch - 6)
+      // @ts-ignore
+      pdf.lineTo(cx + cw, cy + 6); pdf.curveTo(cx + cw, cy, cx + cw, cy, cx + cw - 6, cy)
+      pdf.fill()
+
+      // SHARP ORANGE ACCENT CURVE
+      pdf.setDrawColor(245, 158, 11); pdf.setLineWidth(2.2)
+      // @ts-ignore
+      pdf.moveTo(splitX - 2, cy)
+      // @ts-ignore
+      pdf.curveTo(splitX - 20, cy + 20, splitX + 8, cy + ch - 20, splitX - 20, cy + ch)
+      pdf.stroke()
+
+      // LEFT SIDE: BRANDING (Optimized vertical centering)
+      try {
+          const logoSize = 48; const leftAreaCenter = cx + (splitX - 18 - cx) / 2
+          const logoDataURL = await loadImageAsDataURL(contactInfo.logo)
+          pdf.addImage(logoDataURL, "PNG", leftAreaCenter - logoSize/2, cy + 18, logoSize, logoSize)
+          
+          let orgSize = 22; pdf.setFontSize(orgSize); pdf.setFont("helvetica", "bold")
+          while (pdf.getTextWidth(contactInfo.organization.toUpperCase()) > (splitX - cx - 20) && orgSize > 10) {
+              orgSize -= 1; pdf.setFontSize(orgSize)
+          }
+          pdf.setTextColor(15, 23, 42)
+          pdf.text(contactInfo.organization.toUpperCase(), leftAreaCenter, cy + 82, { align: "center" })
+          
+          pdf.setFontSize(9); pdf.setFont("helvetica", "normal"); pdf.setTextColor(100, 116, 139)
+          pdf.text(contactInfo.tagline || "", leftAreaCenter, cy + 90, { align: "center", maxWidth: splitX - cx - 25 })
+      } catch(e) {}
+
+      // RIGHT SIDE: MEMBER INFO
+      const rx = splitX + 15
+      let nameSize = 26; pdf.setFontSize(nameSize); pdf.setFont("helvetica", "bold")
+      const fullName = `${contactInfo.firstName} ${contactInfo.lastName}`.toUpperCase()
+      while (pdf.getTextWidth(fullName) > (cx + cw - rx - 15) && nameSize > 14) {
+          nameSize -= 0.5; pdf.setFontSize(nameSize)
+      }
+      pdf.setTextColor(255, 255, 255); pdf.text(fullName, rx, cy + 28)
+      
+      pdf.setFontSize(14); pdf.setTextColor(245, 158, 11); pdf.setFont("helvetica", "bold")
+      pdf.text(contactInfo.title.toUpperCase(), rx, cy + 36)
+
+      // Address (Above icons)
+      pdf.setTextColor(148, 163, 184); pdf.setFontSize(9); pdf.setFont("helvetica", "normal")
+      const fullAddr = contactInfo.address + ", " + contactInfo.city
+      pdf.text(fullAddr.substring(0, 50) + (fullAddr.length > 50 ? "..." : ""), rx, cy + 46)
+
+      // CONTACT GRID (Precision Spacing)
+      let ry = cy + 62
+      const drawIcon = (x: number, y: number, type: string) => {
+          pdf.setDrawColor(15, 23, 42); pdf.setLineWidth(0.4)
+          if (type === "phone") {
+              // Handset shape
+              pdf.roundedRect(x-1.5, y-2, 3, 4, 0.5, 0.5, "S")
+              pdf.circle(x, y+1.2, 0.3, "S")
+          } else if (type === "email") {
+              // Envelope
+              pdf.rect(x-2, y-1.5, 4, 3, "S")
+              pdf.line(x-2, y-1.5, x, y)
+              pdf.line(x+2, y-1.5, x, y)
+          } else if (type === "web") {
+              // Globe
+              pdf.circle(x, y, 2, "S")
+              pdf.line(x-2, y, x+2, y)
+              pdf.ellipse(x, y, 0.8, 2, "S")
+          }
+      }
+
+      const addRow = (type: string, val: string) => {
+          if (!val) return;
+          pdf.setFillColor(245, 158, 11); pdf.circle(rx + 4, ry - 1.5, 4.2, "F")
+          drawIcon(rx + 4, ry - 1.5, type)
+          
+          pdf.setTextColor(244, 244, 245); pdf.setFontSize(11); pdf.setFont("helvetica", "normal")
+          pdf.text(val, rx + 12, ry); ry += 11
+      }
+      addRow("phone", "+91 " + contactInfo.phone)
+      addRow("email", contactInfo.email)
+      addRow("web", contactInfo.website)
+
+      // QR Code (VCard for direct save)
+      const minimalVCard = [
+        "BEGIN:VCARD", "VERSION:2.1",
+        `N:${contactInfo.lastName};${contactInfo.firstName}`,
+        `FN:${contactInfo.firstName} ${contactInfo.lastName}`,
+        `ORG:${contactInfo.organization}`,
+        `TEL;CELL:+91${contactInfo.phone}`,
+        `EMAIL;INTERNET:${contactInfo.email}`,
+        "END:VCARD"
+      ].join("\r\n");
+
+      const qrSz = 32
+      const qrPath = await generateQRCodeDataURL(minimalVCard, { color: { dark: "#FFFFFF", light: "#0f172a" }, errorCorrectionLevel: 'M' })
+      pdf.addImage(qrPath, "PNG", cx + cw - qrSz - 5, cy + ch - qrSz - 5, qrSz, qrSz)
+
+      pdf.save(`${contactInfo.firstName}-business-card.pdf`)
+    } catch (e) { console.error(e); }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-           <p className="text-gray-600 font-medium">Loading Scanner...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading || !contactInfo) return null;
 
-  if (!contactInfo) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-         <p className="text-gray-500">No scanner data available.</p>
-      </div>
-    );
-  }
-
-  const vCardData = generateVCard(contactInfo)
+  const pageUrl = window.location.href;
+  const hasSocials = contactInfo.linkedin || contactInfo.instagram || contactInfo.facebook || contactInfo.twitter;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 p-4 sm:p-6 lg:p-8">
-      <img
-        id="botivate-logo"
-        src={contactInfo.logo}
-        alt="Botivate Logo"
-        className="hidden"
-        crossOrigin="anonymous"
-      />
-
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-8 sm:mb-12 bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 lg:p-10 border border-white/30 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-cyan-400/5 to-blue-500/5"></div>
-
-          <div className="flex flex-col items-center justify-center mb-6 relative z-10">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full group-hover:bg-blue-500/30 transition-all"></div>
-              <div className="relative p-1 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-3xl shadow-2xl">
-                <div className="bg-white p-2 rounded-2xl overflow-hidden">
-                  <img
-                    src={contactInfo.logo}
-                    alt="Botivate Logo"
-                    className="h-20 sm:h-24 w-20 sm:w-24 object-contain"
-                  />
-                </div>
-              </div>
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8 font-sans">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="text-center bg-white rounded-[2rem] shadow-2xl p-8 border border-white/30 relative overflow-hidden">
+          <div className="flex flex-col items-center justify-center mb-6">
+            <div className="p-1 bg-white rounded-3xl shadow-xl">
+              <img src={contactInfo.logo} alt="Logo" className="h-24 w-auto object-contain" crossOrigin="anonymous" />
             </div>
           </div>
-
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-4 leading-normal">
-            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent inline-block pb-3 pt-1">
-              {contactInfo.organization}
-            </span>
-          </h1>
-          <p className="text-lg sm:text-xl lg:text-2xl text-gray-700 font-semibold mb-1 sm:mb-2 pb-1 leading-normal inline-block w-full">
-            Automated Intelligence Sync
-          </p>
-          <p className="text-sm sm:text-base lg:text-lg text-gray-600 pb-2 inline-block w-full">
-            Professional Contact QR Card
-          </p>
+          <h1 className="text-4xl font-black text-slate-800 tracking-tighter uppercase">{contactInfo.organization}</h1>
+          <p className="text-slate-400 text-sm font-bold tracking-[0.2em] italic mt-2">{contactInfo.tagline}</p>
         </div>
 
-        <div className="border-0 shadow-2xl bg-white/95 backdrop-blur-sm relative overflow-hidden mb-8 rounded-2xl">
-          <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white rounded-t-2xl text-center p-6">
-            <h2 className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-xl sm:text-2xl font-bold mb-2">
-              <QrCode className="h-6 w-6 sm:h-8 sm:w-8" />
-              Save Us
-            </h2>
-            <p className="text-slate-200 text-base sm:text-lg">
-              Scan to instantly save contact information
-            </p>
+        <div className="bg-white rounded-[2rem] shadow-2xl border border-white/30 overflow-hidden">
+          <div className="bg-slate-900 text-white p-6 text-center">
+            <h2 className="text-xl font-bold">{contactInfo.organization} Profile</h2>
           </div>
 
-          <div className="p-6 sm:p-8 lg:p-12 text-center bg-gradient-to-br from-gray-50 to-white">
-            <div className="flex justify-center mb-6 sm:mb-8">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-cyan-600 rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-pulse"></div>
-
-                <div
-                  id="qr-code"
-                  className="relative bg-white p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border-2 sm:border-4 border-gray-100 transform hover:scale-105 transition-all duration-500"
-                >
-                  <style>{`
-                    #qr-code image {
-                      border-radius: 50%;
-                    }
-                  `}</style>
-                  <QRCodeSVG
-                    value={vCardData}
-                    size={getQRSize(300)}
-                    level="H"
-                    includeMargin={true}
-                    fgColor="black"
-                    bgColor="#ffffff"
-                    imageSettings={{
-                      src: contactInfo.logo,
-                      height: 70,
-                      width: 70,
-                      excavate: true,
-                    }}
-                  />
+          <div className="p-8 text-center bg-white">
+            <div className="flex justify-center mb-10">
+                <div className="bg-slate-50 p-5 rounded-3xl shadow-inner border border-slate-100">
+                  <QRCodeSVG value={pageUrl} size={220} level="H" includeMargin={true} fgColor="#0f172a" />
                 </div>
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              <div className="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-xl">
-                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 text-center pb-1">
-                  {contactInfo.firstName.toUpperCase()} {contactInfo.lastName.toUpperCase()}
-                </h3>
-                <p className="text-sm sm:text-base lg:text-lg text-gray-200 mb-3 sm:mb-4 text-center">
-                  {contactInfo.title}
-                </p>
-
-                <div className="space-y-2 sm:space-y-3">
-                  <div className="flex items-center">
-                    <Phone className="h-4 w-4 mr-2 text-blue-400" />
-                    <span className="text-sm sm:text-base font-semibold">+91 {contactInfo.phone}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Mail className="h-4 w-4 mr-2 text-blue-400" />
-                    <span className="text-xs sm:text-sm break-all">{contactInfo.email}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-gray-50 to-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-xl border-2 border-gray-100 text-left">
-                <div className="space-y-3 text-sm sm:text-base text-gray-700">
-                  <div className="flex items-start">
-                    <MapPin className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-1" />
-                    <p className="leading-relaxed">{contactInfo.address}</p>
-                  </div>
-                  <div className="flex items-center">
-                    <Globe className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0" />
-                    <a
-                      href={`https://${contactInfo.website}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 font-semibold"
-                    >
-                      {contactInfo.website}
-                    </a>
-                  </div>
-                </div>
-              </div>
+            <div className="mb-10 text-center">
+               <h3 className="text-3xl font-black text-slate-800">{contactInfo.firstName} {contactInfo.lastName}</h3>
+               <p className="text-blue-600 font-black tracking-widest text-xs uppercase mt-1">{contactInfo.title}</p>
             </div>
 
-            <div className="space-y-4 sm:space-y-6">
-              <button
-                onClick={downloadContactPDF}
-                className="w-full sm:w-auto bg-gradient-to-r from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white font-bold py-3 sm:py-4 px-8 sm:px-12 rounded-xl sm:rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 text-base sm:text-lg"
-              >
-                <Download className="inline-block h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" />
-                Download Contact PDF
-              </button>
+            {hasSocials && (
+                <div className="flex flex-wrap justify-center gap-4 mb-10">
+                    {contactInfo.linkedin && (
+                        <a href={contactInfo.linkedin} target="_blank" className="w-12 h-12 border border-slate-200 text-blue-700 rounded-full flex items-center justify-center hover:bg-slate-50 transition-all shadow-sm"><Linkedin /></a>
+                    )}
+                    {contactInfo.instagram && (
+                        <a href={contactInfo.instagram} target="_blank" className="w-12 h-12 border border-slate-200 text-pink-600 rounded-full flex items-center justify-center hover:bg-slate-50 transition-all shadow-sm"><Instagram /></a>
+                    )}
+                    {contactInfo.facebook && (
+                        <a href={contactInfo.facebook} target="_blank" className="w-12 h-12 border border-slate-200 text-blue-600 rounded-full flex items-center justify-center hover:bg-slate-50 transition-all shadow-sm"><Facebook /></a>
+                    )}
+                    {contactInfo.twitter && (
+                        <a href={contactInfo.twitter} target="_blank" className="w-12 h-12 border border-slate-200 text-slate-900 rounded-full flex items-center justify-center hover:bg-slate-50 transition-all shadow-sm"><Twitter /></a>
+                    )}
+                </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 text-left">
+               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4 group hover:bg-white hover:shadow-md transition-all">
+                  <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><Phone className="w-5 h-5"/></div>
+                  <div><p className="text-[10px] text-slate-400 font-black uppercase">Call</p><p className="font-bold">+91 {contactInfo.phone}</p></div>
+               </div>
+               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4 group hover:bg-white hover:shadow-md transition-all">
+                  <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"><Mail className="w-5 h-5" /></div>
+                  <div className="min-w-0"><p className="text-[10px] text-slate-400 font-black uppercase">Email</p><p className="font-bold truncate">{contactInfo.email}</p></div>
+               </div>
+               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4 group hover:bg-white hover:shadow-md transition-all">
+                  <div className="w-10 h-10 bg-cyan-100 text-cyan-600 rounded-xl flex items-center justify-center"><Globe className="w-5 h-5" /></div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 font-black uppercase">Website</p>
+                    <a href={contactInfo.website?.startsWith('http') ? contactInfo.website : `https://${contactInfo.website}`} target="_blank" className="font-bold block truncate hover:text-blue-600">{contactInfo.website}</a>
+                  </div>
+               </div>
+               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4 group hover:bg-white hover:shadow-md transition-all">
+                  <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center shrink-0"><MapPin className="w-5 h-5" /></div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 font-black uppercase">Location</p>
+                    <p className="font-bold text-xs truncate">{contactInfo.city}, {contactInfo.state}</p>
+                    {contactInfo.mapsLink && (
+                       <a href={contactInfo.mapsLink} target="_blank" className="text-[10px] font-black text-blue-600 underline">VIEW ON MAPS</a>
+                    )}
+                  </div>
+               </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button onClick={downloadVCard} className="flex-1 bg-white border-2 border-slate-200 font-black py-4 px-8 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 hover:bg-slate-50"><Smartphone className="w-5 h-5" /> SAVE CONTACT</button>
+              <button onClick={downloadContactPDF} className="flex-1 bg-slate-900 text-white font-black py-4 px-8 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 hover:bg-black search-glass"><Download className="w-5 h-5" /> DOWNLOAD PDF</button>
             </div>
           </div>
         </div>
 
-        <div className="text-center bg-gradient-to-r from-slate-700 to-slate-900 text-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-2xl">
-           <span className="text-2xl sm:text-4xl font-bold">Botivate</span>
-          <p className="text-slate-300 text-lg sm:text-xl font-semibold mb-2">Powering Businesses On Autopilot</p>
+        <div className="text-center p-10 bg-slate-900 text-white rounded-[2rem] shadow-2xl space-y-2">
+           <h4 className="text-3xl font-black">{contactInfo.organization}</h4>
+           <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">{contactInfo.tagline}</p>
         </div>
       </div>
     </div>

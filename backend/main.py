@@ -108,9 +108,12 @@ from fastapi.staticfiles import StaticFiles
 app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="assets")
 
 # Mount Scanner Build (React)
-SCANNER_DIST = os.path.join(os.path.dirname(FRONTEND_DIR), "BotivateScanner", "dist")
+# Forced absolute path to the dist folder to avoid any served path ambiguity
+SCANNER_DIST = r"C:\Users\Ghanshyam\Desktop\Bussiness_Card_Reader\BotivateScanner\dist"
 if os.path.exists(SCANNER_DIST):
     app.mount("/scanner", StaticFiles(directory=SCANNER_DIST, html=True), name="scanner")
+else:
+    print(f"ERROR: Scanner Dist directory not found at {SCANNER_DIST}")
 
 @app.get("/")
 async def read_index():
@@ -132,4 +135,8 @@ async def read_worker():
 
 if __name__ == "__main__":
     import uvicorn
+    print("\n" + "="*80)
+    print("🚀 TARGET SERVER STARTING - V2.0.0 (NEW_UPDATE) 🚀")
+    print("SERVICING SCANNER FROM: " + SCANNER_DIST)
+    print("="*80 + "\n")
     uvicorn.run(app, host="127.0.0.1", port=8000)

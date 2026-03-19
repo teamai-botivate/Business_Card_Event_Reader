@@ -108,12 +108,14 @@ from fastapi.staticfiles import StaticFiles
 app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="assets")
 
 # Mount Scanner Build (React)
-# Forced absolute path to the dist folder to avoid any served path ambiguity
-SCANNER_DIST = r"C:\Users\Ghanshyam\Desktop\Bussiness_Card_Reader\BotivateScanner\dist"
+# Use dynamic path for cloud compatibility
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SCANNER_DIST = os.path.join(PROJECT_ROOT, "BotivateScanner", "dist")
+
 if os.path.exists(SCANNER_DIST):
     app.mount("/scanner", StaticFiles(directory=SCANNER_DIST, html=True), name="scanner")
 else:
-    print(f"ERROR: Scanner Dist directory not found at {SCANNER_DIST}")
+    logger.warning(f"Scanner Dist directory not found at {SCANNER_DIST}")
 
 @app.get("/")
 async def read_index():

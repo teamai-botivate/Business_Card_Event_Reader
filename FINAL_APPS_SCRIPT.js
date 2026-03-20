@@ -729,6 +729,7 @@ function getCompanyProfile() {
     if (hTrim === "Key Person Designation") profile.keyPersonDesignation = lastRow[i];
     if (hTrim === "Key Person Phone") profile.keyPersonPhone = lastRow[i];
     if (hTrim === "Key Person Email") profile.keyPersonEmail = lastRow[i];
+    if (hTrim === "Logo") profile.logoBase64 = lastRow[i];
   });
 
   return { success: true, profile: profile };
@@ -776,6 +777,7 @@ function saveCompanyProfile(profileData) {
     if (hTrim === "Key Person Designation") newRow[i] = profileData.keyPersonDesignation || "";
     if (hTrim === "Key Person Phone") newRow[i] = profileData.keyPersonPhone || "";
     if (hTrim === "Key Person Email") newRow[i] = profileData.keyPersonEmail || "";
+    if (hTrim === "Logo") newRow[i] = profileData.logoBase64 || "";
   });
 
   if (sheet.getLastRow() < 2) {

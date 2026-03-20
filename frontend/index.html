@@ -1315,6 +1315,14 @@
                     });
                     const indEl = document.getElementById('prof_comp_industry');
                     if (indEl && prof.industry) indEl.value = prof.industry;
+                    
+                    // Logo sync
+                    if (prof.logoBase64) {
+                        const prev = document.getElementById('prof_logo_preview');
+                        const ph = document.getElementById('prof_logo_placeholder');
+                        if (prev) { prev.src = prof.logoBase64; prev.style.display = 'block'; }
+                        if (ph) ph.style.display = 'none';
+                    }
                 }
             } catch (err) {
                 console.error("Failed to sync profile from sheet", err);
@@ -1349,6 +1357,12 @@
                 const el = document.getElementById(elId);
                 if (el) prof[key] = el.value;
             });
+
+            // Add logo to payload
+            const prevEl = document.getElementById('prof_logo_preview');
+            if (prevEl && prevEl.src && prevEl.style.display !== 'none') {
+                prof.logoBase64 = prevEl.src;
+            }
 
             try {
                 const response = await fetch('/save-company-profile', {

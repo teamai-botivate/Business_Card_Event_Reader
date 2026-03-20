@@ -277,37 +277,53 @@
             }
         });
 
-        window.downloadContact = () => {
-            if (!eventDataCache) return;
+        function downloadContact() {
+            if (!eventDataCache) {
+                console.error("No contact data found in cache");
+                return;
+            }
             
-            const vC = (val) => (val || '').replace(/\n/g, ' ');
+            const vC = (val) => (val || '').toString().replace(/\n/g, ' ').trim();
             const contactName = eventDataCache.name || 'Event Contact';
+            
+            // Name Split logic
             const nameParts = contactName.split(' ');
-            const lastName = nameParts.length > 1 ? nameParts.pop() : '';
-            const firstName = nameParts.join(' ') || contactName;
+            let firstName = contactName;
+            let lastName = '';
+            if (nameParts.length > 1) {
+                lastName = nameParts.pop();
+                firstName = nameParts.join(' ');
+            }
 
             const vCard = [
-                'BEGIN:VCARD', 'VERSION:3.0',
+                'BEGIN:VCARD',
+                'VERSION:3.0',
                 `N:${vC(lastName)};${vC(firstName)};;;`,
                 `FN:${vC(contactName)}`,
                 `ORG:${vC(eventDataCache.company || '')}`,
+                `TITLE:${vC(eventDataCache.tagline || '')}`,
                 `TEL;TYPE=WORK,VOICE:${vC(eventDataCache.phone || '')}`,
+                `TEL;TYPE=CELL,VOICE:${vC(eventDataCache.whatsapp || eventDataCache.phone || '')}`,
                 `EMAIL;TYPE=WORK,INTERNET:${vC(eventDataCache.email || '')}`,
                 `ADR;TYPE=WORK:;;${vC(eventDataCache.address || '')};${vC(eventDataCache.city || '')};${vC(eventDataCache.state || '')};${vC(eventDataCache.pincode || '')};${vC(eventDataCache.country || '')}`,
                 `URL:${vC(eventDataCache.website || '')}`,
                 'END:VCARD'
-            ].join('\n');
+            ].join('\r\n');
 
-            const blob = new Blob([vCard], { type: 'text/vcard' });
+            const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
+            a.style.display = 'none';
             a.href = url;
-            a.download = `${contactName.replace(/\\s+/g, '_')}_Contact.vcf`;
+            a.download = `${contactName.replace(/\s+/g, '_')}_Contact.vcf`;
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        };
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
+        }
     </script>
 </body>
 </html>

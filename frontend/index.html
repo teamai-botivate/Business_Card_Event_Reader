@@ -143,34 +143,41 @@
     </div>
 
     <!-- ===== GLOBAL HEADER ===== -->
-    <header style="background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid #e8edf2; position: sticky; top: 0; z-index: 50;">
-        <div class="inner-container" style="max-width: 1400px; width: 100%; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-            <!-- Left: Title & Badge -->
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <button id="backToEventsBtn" style="display: none; align-items: center; gap: 8px; padding: 10px 18px; background: white; border: 1px solid #e2e8f0; border-radius: 100px; cursor: pointer; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #475569; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.03);" onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'">
-                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Back
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <!-- Left: Branding -->
+            <div class="flex items-center gap-4">
+                <button id="backToEventsBtn" class="hidden items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-all active:scale-95 shrink-0 group">
+                    <svg class="w-5 h-5 text-gray-600 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </button>
-                <div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <h1 id="mainTitle" style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; margin: 0;">Event Hub</h1>
-                    </div>
-                    <p id="mainSubtitle" class="hide-mobile" style="font-size: 13px; color: #94a3b8; font-weight: 500; margin: 2px 0 0;">Intelligent OCR Processing Engine</p>
+                <div class="min-w-0">
+                    <h1 id="mainTitle" class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-none">Event Hub</h1>
+                    <p id="mainSubtitle" class="hide-mobile text-[9px] sm:text-[11px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        Intelligent OCR Processing
+                    </p>
                 </div>
             </div>
-            <!-- Right: Action Buttons -->
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <button type="button" id="openEventBtn" style="display: flex; align-items: center; gap: 8px; padding: 10px 22px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 100px; cursor: pointer; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: 0 4px 14px rgba(37,99,235,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+
+            <!-- Right: Actions -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button type="button" id="openEventBtn" class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                     <span class="hide-mobile">Create Event</span>
                 </button>
+
+                <div class="w-px h-8 bg-gray-100 mx-1 hide-mobile"></div>
+
+                <a id="globalDatabaseBtn" href="/leads" title="Global Leads Database" class="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-all active:scale-95 text-gray-600 hover:text-blue-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4"></path></svg>
+                </a>
+
+                <button id="eventDatabaseBtn" title="Event Insights" class="hidden w-10 h-10 items-center justify-center bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-all active:scale-95 text-gray-600 hover:text-emerald-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 </button>
-                <!-- NEW: Database Button (Only for Events) -->
-                <button id="eventDatabaseBtn" title="Event Insights" style="display: none; width:38px;height:38px;border-radius:50%;background:white;border:1px solid #e2e8f0;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#2563eb';this.style.background='#f8fafc'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='white'">
-                    <svg style="width:18px;height:18px;color:#475569;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4"></path></svg>
-                </button>
-                <button id="openProfileBtn" onclick="openProfileDrawer()" title="Company Profile" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#e0e7ff,#dbeafe);border:2px solid #c7d2fe;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.borderColor='#6366f1';this.style.transform='scale(1.07)'" onmouseout="this.style.borderColor='#c7d2fe';this.style.transform='scale(1)'">
-                    <svg style="width:17px;height:17px;color:#4f46e5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+
+                <button id="openProfileBtn" onclick="openProfileDrawer()" title="Company Profile" class="w-10 h-10 flex items-center justify-center bg-indigo-50 border border-indigo-100 rounded-full shadow-sm hover:bg-indigo-100 transition-all active:scale-95 text-indigo-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
             </div>
         </div>
@@ -193,42 +200,46 @@
        </div> <!-- End Main Workspace Container -->
 
     <!-- NEW: Event Database Container (Table View) -->
-    <div id="dbViewContainer" class="dashboard-container hidden" style="max-width: 1200px; width: 100%; margin: 20px auto 0;">
-        <div style="background: white; border-radius: 20px; border: 1px solid #eef2f6; box-shadow: 0 10px 30px rgba(0,0,0,0.03); min-height: 500px; padding: 30px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
-                <div style="display: flex; background: #f8fafc; padding: 4px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                    <button onclick="switchDbTab('cards')" id="db-tab-cards" style="padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s;">
+    <div id="dbViewContainer" class="dashboard-container hidden" style="max-width: 1200px; width: 100%; margin: 10px auto 0;">
+        <div class="bg-white/80 backdrop-blur-xl border border-white/40 shadow-2xl rounded-[2.5rem] p-6 sm:p-8 min-h-[600px] relative overflow-hidden">
+            <!-- Background Accent -->
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-50 -z-10"></div>
+            
+            <div class="flex items-center justify-between gap-6 mb-8 relative z-10">
+                <!-- Premium Toggle Tabs -->
+                <div class="flex w-full sm:w-auto bg-gray-100/50 backdrop-blur-md border border-gray-200 p-1 rounded-2xl shadow-inner overflow-hidden h-12">
+                    <button onclick="switchDbTab('cards')" id="db-tab-cards" class="flex-1 sm:flex-none sm:min-w-[160px] flex items-center justify-center gap-2 px-6 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 bg-blue-600 text-white shadow-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                         Scanned Cards
                     </button>
-                    <button onclick="switchDbTab('visitors')" id="db-tab-visitors" style="padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; margin-left: 4px;">
+                    <button onclick="switchDbTab('visitors')" id="db-tab-visitors" class="flex-1 sm:flex-none sm:min-w-[160px] flex items-center justify-center gap-2 px-6 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 text-gray-500 hover:text-gray-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h2M4 8h16"></path></svg>
                         QR Visitors
                     </button>
                 </div>
-                <button onclick="closeDbView()" class="btn-responsive" style="background: #fee2e2; color: #ef4444; border: none; padding: 10px 20px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    <span>Close Insights</span>
-                </button>
             </div>
 
+
+
             <!-- Cards Table -->
-            <div id="db-cards-content" class="overflow-x-auto" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <div id="db-cards-content" class="overflow-x-auto rounded-3xl border border-gray-100 shadow-sm" style="scrollbar-width: none; -ms-overflow-style: none;">
                 <style>
                     #db-cards-content::-webkit-scrollbar, #db-visitors-content::-webkit-scrollbar { display: none; }
                 </style>
                 <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
                     <thead>
                         <tr style="text-align: left; background: #f8fafc; white-space: nowrap;">
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">S No.</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Photos</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Company Name</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Industry</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Person Name</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Designation</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Phone</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Email</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Website</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Social Media</th>
-                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Address</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">#</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Photos</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Company Name</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Industry</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Person Name</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Designation</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Phone</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Email</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Website</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Social Media</th>
+                            <th style="padding: 18px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Address</th>
                             <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Services</th>
                             <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Company Size</th>
                             <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Founded Year</th>
@@ -524,15 +535,21 @@
     </footer>
 
     <!-- Event Creation Modal -->
-    <div id="eventModalBackdrop" class="modal-backdrop">
-        <div class="event-modal">
-            <header class="modal-header">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Create New Event</h2>
-                    <p class="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em] mt-1">Event-based Lead Capture</p>
+    <div id="eventModalBackdrop" class="modal-backdrop bg-slate-900/40 backdrop-blur-md">
+        <div class="event-modal bg-white/95 backdrop-blur-2xl border border-white shadow-[0_20px_70px_rgba(0,0,0,0.15)] rounded-[2.5rem] overflow-hidden">
+            <header class="modal-header border-b border-gray-100 flex items-center justify-between p-8 bg-gray-50/30">
+                <div class="flex items-center gap-4">
+                    <div class="w-1.5 h-10 bg-blue-600 rounded-full"></div>
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight">Create New Event</h2>
+                        <p class="text-[10px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                            Live Lead Capture Setup
+                        </p>
+                    </div>
                 </div>
-                <button id="closeEventModal" class="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-gray-100 transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button id="closeEventModal" class="group w-12 h-12 flex items-center justify-center bg-white border border-gray-200 rounded-2xl hover:bg-rose-50 hover:border-rose-100 transition-all duration-300 active:scale-95 shadow-sm">
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-rose-500 group-hover:rotate-90 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </header>
 
@@ -684,8 +701,11 @@
                 document.getElementById('mainSubtitle').innerText = 'Intelligent OCR Processing Engine';
                 
                 // Show header buttons again
-                document.getElementById('openEventBtn').style.display = 'flex';
-                document.getElementById('eventDatabaseBtn').style.display = 'none';
+                document.getElementById('openEventBtn').classList.remove('hidden');
+                document.getElementById('globalDatabaseBtn').classList.remove('hidden');
+                document.getElementById('eventDatabaseBtn').classList.add('hidden');
+                const divider = document.querySelector('.w-px.h-8.bg-gray-100');
+                if (divider) divider.classList.remove('hidden');
                 window.selectedEventInfo = null;
                 switchTab('scan'); // Default tab
                 closeDbView(); // Ensure DB view is closed
@@ -708,17 +728,18 @@
                 const vT = document.getElementById('db-visitors-content');
                 const cB = document.getElementById('db-tab-cards');
                 const vB = document.getElementById('db-tab-visitors');
-                const active = ['bg-blue-600', 'text-white', 'shadow-md'];
-                const inactive = ['text-gray-500', 'hover:bg-gray-100'];
+                
+                const activeClasses = "flex-1 sm:flex-none sm:min-w-[160px] flex items-center justify-center gap-2 px-6 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 bg-blue-600 text-white shadow-xl z-10";
+                const inactiveClasses = "flex-1 sm:flex-none sm:min-w-[160px] flex items-center justify-center gap-2 px-6 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 text-gray-500 hover:text-gray-700 z-10";
 
                 if (tab === 'cards') {
                     cT.classList.remove('hidden'); vT.classList.add('hidden');
-                    cB.classList.add(...active); cB.classList.remove(...inactive);
-                    vB.classList.remove(...active); vB.classList.add(...inactive);
+                    cB.className = activeClasses;
+                    vB.className = inactiveClasses;
                 } else {
                     cT.classList.add('hidden'); vT.classList.remove('hidden');
-                    vB.classList.add(...active); vB.classList.remove(...inactive);
-                    cB.classList.remove(...active); cB.classList.add(...inactive);
+                    vB.className = activeClasses;
+                    cB.className = inactiveClasses;
                 }
             };
 
@@ -871,12 +892,18 @@
                 const subtitleParts = [locText, dateText].filter(Boolean).join('<span style="margin: 0 10px; opacity: 0.3;">•</span>');
                 document.getElementById('mainSubtitle').innerHTML = subtitleParts || 'Event Active';
                 // Hide CREATE EVENT
-                document.getElementById('openEventBtn').style.display = 'none';
+                document.getElementById('openEventBtn').classList.add('hidden');
                 
                 // Show Database Button & Setup Click
+                document.getElementById('globalDatabaseBtn').classList.add('hidden');
                 const dbBtn = document.getElementById('eventDatabaseBtn');
-                dbBtn.style.display = 'flex';
+                dbBtn.classList.remove('hidden');
+                dbBtn.classList.add('flex');
                 dbBtn.onclick = () => openDbView(ev.id, ev.name);
+                
+                // Hide Divider in Event View
+                const divider = document.querySelector('.w-px.h-8.bg-gray-100');
+                if (divider) divider.classList.add('hidden');
                 
                 // Generate Event Form QR
                 const eventFormUrl = `https://business-card-event-reader.onrender.com/visitor-form/${ev.id}`;

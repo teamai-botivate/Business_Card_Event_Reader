@@ -1,98 +1,97 @@
-# 🚀 Deploying to Render — Business Card Reader
+# 🚀 Render Deployment Guide — Business Card Reader (Hindi + English)
 
-This guide explains how to host your **Business Card Reader** on [Render](https://render.com) for free (or on their paid tier).
-
----
-
-## 📋 Prerequisites
-
-1.  **GitHub Repository:** Ensure your latest code (with the `backend/` and `frontend/` folders) is pushed to GitHub.
-2.  **Render Account:** Sign up at [dashboard.render.com](https://dashboard.render.com).
-3.  **Python Version:** We will use **Python 3.10** as requested.
+Ye document aapko batayega ki kaise apne local project ko **Render** pr live (deploy) krna hai. Render ek popular cloud platform hai jahan aap apna backend aur frontend dono free me host kr skte hain.
 
 ---
 
-## 🛠️ Deployment Steps
+## 🏗️ 1. Deployment Workflow Kaise Kaam Krta Hai?
 
-### 1. Create a New Web Service
-- Go to your Render Dashboard and click **"New +"** → **"Web Service"**.
-- Connect your GitHub account and select your `Bussiness_Card_Reader` repository.
+```mermaid
+graph TD
+    A[Local Code Push] -->|Update GitHub| B[GitHub Repository]
+    B -->|Auto-Trigger| C[Render Web Service]
+    C -->|Run build.sh| D[Build Scanner Frontend]
+    D -->|pip install| E[Install Python Backend]
+    E -->|uvicorn run| F[Your App is LIVE!]
+```
 
-### 2. Basic Configuration
-Fill in the following details:
+---
+
+## 📋 2. Prerequisites (Kya Kya Chahiye)
+
+- **GitHub Account:** Project GitHub pr push hona chahiye (Steps ke liye `SYSTEM_COMPLETE_GUIDE.md` dekhein).
+- **Render Account:** [dashboard.render.com](https://dashboard.render.com) pr sign up krein.
+- **API Keys Ready:** OpenAI, Google Search, aur Apps Script URL ready rakhein.
+
+---
+
+## 🛠️ 3. Deploy Krne Ka Step-by-Step Tarika
+
+### Step 3.1: Naya Web Service Banayein
+1. Render Dashboard me jayein aur **"New +"** pr click krein.
+2. **"Web Service"** select krein.
+3. Apna GitHub account connect krein aur **`Business_Card_Event_Reader`** repo ko select krein.
+
+### Step 3.2: Basic Configuration
+Niche di gayi settings ko sahi se bharein (Ye sabse zaroori hai):
 
 | Field | Value |
 |-------|-------|
-| **Name** | `business-card-ocr` (or anything you like) |
-| **Region** | Select the one closest to you (e.g., Singapore or US East) |
+| **Name** | `business-card-reader` (Aapka pasandida naam) |
+| **Region** | `Singapore` (India ke liye best) |
 | **Branch** | `main` |
 | **Language** | `Python 3` |
 
-### 3. Build & Start Commands
-This is crucial because of our modular folder structure:
+### Step 3.3: Build & Start Commands (CRITICAL ⚠️)
+Hamara project modular hai, isliye ye commands dhyaan se dalein:
 
-- **Build Command:**
-  ```bash
-  pip install -r backend/requirements.txt
-  ```
-- **Start Command:**
-  ```bash
-  python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
-  ```
+1. **Build Command:**
+   ```bash
+   chmod +x render-build.sh && ./render-build.sh
+   ```
+   *(Ye command `BotivateScanner` frontend ko build kregi aur Python libraries install kregi.)*
 
-### 4. Setting the Python Version
-Render uses a default Python version unless told otherwise. To use **3.10**:
-- Scroll down to **"Advanced"**.
-- Click **"Add Environment Variable"**.
-- Key: `PYTHON_VERSION`
-- Value: `3.10.12` (or `3.10.x`)
+2. **Start Command:**
+   ```bash
+   python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+   ```
 
 ---
 
-## 🔑 5. Environment Variables (Required)
-You MUST add your API keys in the **Environment** section of Render. Do not skip this!
+## 🔑 4. Environment Variables Setup
 
-| Key | Value |
-|-----|-------|
-| `OPENAI_API_KEY` | *Your sk-proj-... key* |
-| `GOOGLE_API_KEY` | *Your Google Search Key* |
-| `GOOGLE_CSE_ID` | *Your Search Engine ID* |
-| `APPS_SCRIPT_URL` | *Your Google Sheets Script URL* |
-| `PYTHONPATH` | `.` (This helps Python find the `backend` package) |
+Render Dashboard me **"Environment"** tab me jayein aur ye saari keys add krein:
 
----
-
-## 🔄 6. Handling the Frontend
-Since the Python backend serves the `index.html` from the `frontend/` folder, once the API is live, your website will be available at:
-`https://your-service-name.onrender.com/`
-
-### ⚠️ Important Note for Frontend
-In your `frontend/index.html`, ensure your API URL is relative:
-```javascript
-const api = '/ocr'; // ✅ This is correct for deployment
-```
-*(We already did this in our previous steps, so it should be fine!)*
+| Key | Value | Notes |
+|-----|-------|-------|
+| `OPENAI_API_KEY` | `sk-proj...` | Aapki OpenAI Key |
+| `GOOGLE_API_KEY` | `AIzaSy...` | Aapki Google Cloud Key |
+| `GOOGLE_CSE_ID` | `0441db...` | Aapki Search Engine ID |
+| `APPS_SCRIPT_URL` | `https://script.google.../exec` | Google Apps Script URL |
+| `PYTHONPATH` | `.` | Python folder path dhoondne ke liye |
+| `PYTHON_VERSION` | `3.10.12` | Python version fix krne ke liye |
 
 ---
 
-## 📊 Monitoring & Logs
-- Once you click **"Create Web Service"**, Render will start the build.
-- You can watch the **Logs** tab in Render to see if there are any errors during `pip install`.
-- If you see `Application startup complete`, your app is live!
+## 📡 5. URL Connection (Frontend + Backend)
+
+Render pr deploy hote hi aapko ek unique URL milega, jaise:
+`https://business-card-reader.onrender.com`
+
+**Point to Remember:**
+- Is project me backend hi frontend serve krta hai, isliye aapko alag se frontend host krne ki zaroorat nhi hai.
+- Aapka **Leads Dashboard** yahan milega: `https://...onrender.com/leads`
+- Aapka **Scanner** yahan milega: `https://...onrender.com/scanner`
 
 ---
 
-## 🛠️ Troubleshooting on Render
+## ❓ 6. Troubleshooting (Agr Deployment Fail Ho)
 
-### 1. "ModuleNotFoundError: No module named 'backend'"
-If you get this error, ensure you have added the environment variable `PYTHONPATH` with value `.`. This tells Python to look in the root folder for the `backend` folder.
-
-### 2. Port Issues
-Render automatically assigns a port. Using `--port $PORT` in the start command handles this automatically.
-
-### 3. Slow Start (Free Tier)
-Render's free tier puts your app to sleep after 15 minutes of inactivity. The first request after a long time might take 30-50 seconds to "wake up" the server.
+1. **"ModuleNotFoundError"**: Check krein ki `PYTHONPATH` variable me `.` dala hai ya nhi.
+2. **"npm not found"**: Render free tier pr kabhi kabhi npm issue hota hai. Check krein ki Language `Python 3` hi select ki hai (Render Python environment me Node pre-installed rakhta hai).
+3. **Timeout Error**: Pehli baar build hone me metadata setup thoda time le skta hai (2-4 mins).
+4. **Free Tier Sleep**: Agar aap 15 mins tak app use nhi krenge, to ye 'Sleep' mode me chala jayega. Next time website open krne pr 30 seconds wait krna pdega "Wake up" ke liye.
 
 ---
 
-**Everything is ready!** Just follow these steps on Render and your AI Business Card Reader will be accessible from anywhere in the world. 🌍
+Ab aapka system pure world me kisi ko bhi share krne ke liye ready hai! 🌍🚀
